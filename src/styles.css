@@ -1,0 +1,162 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --font-display: "Clash Display", "General Sans", sans-serif;
+  --font-sans: "General Sans", Arial, sans-serif;
+  --font-mono: "Space Mono", monospace;
+}
+
+:root {
+  --radius: 0.125rem;
+  --paper: #f2f0f5;
+  --ink: #0a0a0e;
+  --dim: #8a80a0;
+  --neon: #a855f7;
+  --background: var(--ink);
+  --foreground: var(--paper);
+  --card: #121218;
+  --card-foreground: var(--paper);
+  --primary: var(--neon);
+  --primary-foreground: var(--paper);
+  --secondary: var(--paper);
+  --secondary-foreground: var(--ink);
+  --muted: #16161c;
+  --muted-foreground: var(--dim);
+  --accent: var(--neon);
+  --accent-foreground: var(--paper);
+  --border: rgba(242, 240, 245, 0.12);
+  --input: rgba(242, 240, 245, 0.16);
+  --ring: var(--neon);
+}
+
+* { box-sizing: border-box; border-color: var(--border); }
+html { scroll-behavior: smooth; background: var(--background); scrollbar-color: var(--neon) var(--ink); }
+body { margin: 0; overflow-x: hidden; background: var(--background); color: var(--foreground); font-family: var(--font-sans); }
+a { color: inherit; text-decoration: none; }
+button, a { -webkit-tap-highlight-color: transparent; }
+::selection { background: var(--neon); color: var(--ink); }
+:focus-visible { outline: 1.5px solid var(--neon); outline-offset: 3px; }
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: var(--ink); }
+::-webkit-scrollbar-thumb { background: color-mix(in oklch, var(--neon) 55%, var(--ink)); border: 2px solid var(--ink); border-radius: 6px; }
+
+.wisp { position: relative; min-height: 100vh; overflow: clip; background: var(--ink); color: var(--paper); }
+.bar { position: fixed; inset: 0 0 auto; z-index: 60; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; min-height: 4.5rem; padding: 0 2rem; border-bottom: 1px solid var(--border); background: color-mix(in oklch, var(--ink) 82%, transparent); backdrop-filter: blur(14px); }
+.mark { font-family: var(--font-sans); font-size: 0.92rem; font-weight: 600; letter-spacing: 0.08em; }
+.bar-label, .bar-cta, .mono-label { font-family: var(--font-mono); font-size: 0.64rem; line-height: 1.35; letter-spacing: 0.18em; text-transform: uppercase; }
+.mono-label { margin: 0; color: var(--dim); }
+.bar-label { justify-self: center; }
+.bar-cta { justify-self: end; display: inline-flex; align-items: center; gap: 0.55rem; transition: color 220ms ease, transform 140ms ease-out; }
+.bar-cta:hover, .bar-cta:focus-visible { color: var(--neon); }
+.bar-cta:active { transform: scale(0.97); }
+
+/* --- The journey: one full-bleed scroll-scrubbed world --- */
+.room { position: relative; background: var(--ink); }
+.room-brain { height: 900svh; }
+.room-inner { position: sticky; top: 0; height: 100svh; min-height: 34rem; overflow: hidden; }
+
+.brain-wordmark { position: absolute; inset: 0; z-index: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; font-family: var(--font-display); font-weight: 400; font-size: clamp(6rem, 17vw, 15rem); letter-spacing: -0.02em; line-height: 1; color: var(--paper); white-space: nowrap; pointer-events: none; user-select: none; }
+.brain-stage { position: absolute; inset: 0; z-index: 2; display: flex; align-items: center; justify-content: center; }
+.brain-poster { position: absolute; width: min(60vw, 66rem); max-width: 94vw; height: auto; max-height: 82svh; display: block; object-fit: contain; filter: contrast(1.05) saturate(1.05); }
+.brain-video { position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; display: block; object-fit: cover; opacity: 0; }
+
+/* Loading the journey Blob — an honest wait, not a stuck frame */
+.journey-load { position: absolute; z-index: 9; left: 50%; bottom: 3.5rem; transform: translateX(-50%); display: grid; justify-items: center; gap: 0.7rem; width: min(20rem, 70vw); }
+.journey-load-track { width: 100%; height: 2px; background: var(--border); overflow: hidden; }
+.journey-load-fill { width: 100%; height: 100%; background: var(--neon); transform-origin: left center; transform: scaleX(0); transition: transform 160ms linear; }
+.journey-load .mono-label { color: var(--dim); }
+
+/* Story captions — scroll genuinely locks for these, so the fade is time-based, not scroll-based */
+.story-caption { position: absolute; z-index: 8; top: 50%; width: min(26rem, 42vw); padding-inline: 3rem; display: grid; gap: 0.85rem; opacity: 0; pointer-events: none; transform: translate3d(0, 16px, 0); filter: blur(5px); transition: opacity 450ms cubic-bezier(0.23, 1, 0.32, 1), transform 450ms cubic-bezier(0.23, 1, 0.32, 1), filter 450ms cubic-bezier(0.23, 1, 0.32, 1); }
+.story-caption.is-active { opacity: 1; transform: translate3d(0, 0, 0); filter: blur(0); }
+.story-caption[data-align="left"] { left: 0; }
+.story-caption[data-align="right"] { right: 0; text-align: right; justify-items: end; }
+.story-kicker { color: var(--neon); opacity: 0.85; }
+.story-caption h2 { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: clamp(1.7rem, 3vw, 2.5rem); line-height: 1.08; letter-spacing: -0.01em; color: var(--paper); text-wrap: balance; }
+.story-sub { margin: 0; color: var(--dim); font-size: clamp(0.92rem, 1.15vw, 1.02rem); line-height: 1.5; max-width: 26ch; }
+
+/* Static fallback — reduced motion / small or coarse-pointer devices: the resting frame only */
+.hero-static { position: relative; min-height: 100svh; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.room-static-media { width: min(70vw, 40rem); }
+.room-static-media img { width: 100%; height: auto; display: block; }
+
+/* --- Below the journey: what the studio actually does, then the close --- */
+.below { position: relative; z-index: 3; background: var(--ink); }
+
+.capabilities { position: relative; z-index: 5; background: var(--ink); padding: clamp(6rem, 12vw, 10rem) max(2rem, 6vw) clamp(4rem, 8vw, 7rem); }
+.row-head { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1.1rem; border-bottom: 1px solid var(--border); }
+.row-head .mono-label { margin: 0; }
+.capability-index { margin: 0; padding: 0; list-style: none; }
+.capability-index li { position: relative; display: grid; grid-template-columns: 4.5rem minmax(14rem, 22rem) minmax(16rem, 34rem); gap: 2rem; align-items: baseline; min-height: 9rem; border-bottom: 1px solid var(--border); }
+.capability-index .cap-num { position: relative; margin: 0; padding-bottom: 0.6rem; }
+.capability-index .cap-num::after { content: ""; position: absolute; left: 0; bottom: 0; height: 1px; width: 100%; background: var(--neon); transform: scaleX(0); transform-origin: left center; transition: transform 900ms cubic-bezier(0.16, 1, 0.3, 1) 120ms; }
+.capability-index li[data-on="1"] .cap-num::after { transform: scaleX(1); }
+.capability-index h3 { margin: 0; opacity: 0; transform: translateY(0.85rem); transition: opacity 600ms ease, transform 700ms cubic-bezier(0.16, 1, 0.3, 1); font-family: var(--font-display); font-weight: 400; font-size: clamp(1.6rem, 3vw, 2.6rem); line-height: 1.05; letter-spacing: -0.01em; }
+.capability-index p { margin: 0; opacity: 0; transform: translateY(0.85rem); transition: opacity 600ms ease 90ms, transform 700ms cubic-bezier(0.16, 1, 0.3, 1) 90ms; color: var(--dim); font-size: 0.96rem; line-height: 1.6; align-self: center; }
+.capability-index li[data-on="1"] h3, .capability-index li[data-on="1"] p { opacity: 1; transform: none; }
+
+/* No transform default here on purpose — GSAP reads yPercent off the element's current
+   transform before animating it, so a CSS transform here would compound with GSAP's own
+   100%, not replace it. GSAP sets the starting translateY itself once it initializes. */
+.contact { position: fixed; inset: 0; z-index: 10; will-change: transform; display: flex; flex-direction: column; justify-content: space-between; padding: 8rem max(2rem, 6vw) 2rem; background: var(--ink); color: var(--paper); }
+/* Static tier (small/coarse-pointer/reduced-motion) never runs the pin+cover JS — fall back to plain flow. */
+main[data-tier="static"] .contact { position: static; inset: auto; will-change: auto; min-height: 100svh; }
+.masked { margin: 0; font-family: var(--font-display); font-size: clamp(3.4rem, 9vw, 9rem); font-weight: 400; line-height: 0.9; letter-spacing: 0; }
+.masked span { display: block; opacity: 0; transform: translateY(1.2rem); transition: opacity 700ms ease, transform 900ms cubic-bezier(0.16, 1, 0.3, 1); }
+.masked[data-on="1"] span { opacity: 1; transform: none; }
+.masked span:last-child { color: var(--neon); }
+.contact h2 { margin-block: auto 3rem; }
+.cta { position: relative; display: flex; justify-content: space-between; align-items: center; min-height: 5.5rem; border-top: 1px solid color-mix(in oklch, var(--paper) 25%, transparent); border-bottom: 1px solid color-mix(in oklch, var(--paper) 25%, transparent); font-size: clamp(1.1rem, 2vw, 2rem); overflow: hidden; transition: color 220ms ease, transform 160ms ease-out; }
+.cta::after { content: ""; position: absolute; left: 0; bottom: -1px; height: 1px; width: 100%; background: var(--neon); transform: scaleX(0); transform-origin: left center; transition: transform 280ms cubic-bezier(0.16, 1, 0.3, 1); }
+.cta:hover::after, .cta:focus-visible::after { transform: scaleX(1); }
+.cta:hover, .cta:focus-visible { color: var(--neon); }
+.cta:active { transform: scale(0.98); }
+.contact footer { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 2rem; padding-top: 5rem; }
+.contact footer .mono-label { color: var(--paper); opacity: 0.72; }
+
+@media (max-width: 720px) {
+  .bar { grid-template-columns: 1fr auto; min-height: 4rem; padding: 0 1.25rem; }
+  .bar-label { display: none; }
+  .bar-cta { font-size: 0; letter-spacing: 0; }
+  .bar-cta svg { width: 18px; height: 18px; }
+  .brain-wordmark { font-size: clamp(3.4rem, 17vw, 5.8rem); }
+  .room-static-media { width: 88vw; }
+  .story-caption { width: 100%; padding-inline: 1.25rem; }
+  .story-caption h2 { font-size: clamp(1.5rem, 6.5vw, 2rem); }
+
+  .capabilities { padding: 5rem 1.25rem 4rem; }
+  .capability-index li { grid-template-columns: 3rem 1fr; grid-template-rows: auto auto; gap: 0.75rem 1rem; min-height: 8rem; padding-block: 1.25rem; }
+  .capability-index p { grid-column: 2; }
+  .contact { padding: 6rem 1.25rem 1.25rem; }
+  .masked { font-size: clamp(2.6rem, 13vw, 4.5rem); }
+  .contact footer { grid-template-columns: 1fr; padding-top: 4rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+  .masked span, .capability-index h3, .capability-index p { opacity: 1; transform: none; }
+  .capability-index .cap-num::after { transform: scaleX(1); }
+}
