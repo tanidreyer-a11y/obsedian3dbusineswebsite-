@@ -64,6 +64,12 @@ export default function RoomBrain() {
   const captionRefs = useRef<(HTMLDivElement | null)[]>([]);
   const scrub = useRef<ScrollScrub | null>(null);
   const ready = useRef(false);
+  // Last progress applied by a scroll tick, and the function that applies it — so
+  // the load-ready callback below (which can fire seconds after the user stopped
+  // scrolling, especially over a slow connection) can re-run the crossfade itself
+  // instead of leaving the poster stuck until the next scroll event.
+  const lastProgress = useRef(0);
+  const applyChromeRef = useRef<(p: number) => void>(() => {});
   const [loadFraction, setLoadFraction] = useState(0);
   const [loaded, setLoaded] = useState(false);
 
@@ -81,6 +87,7 @@ export default function RoomBrain() {
       // land on a video element with full opacity and nothing decoded yet: black.
       () => {
         ready.current = true;
+        applyChromeRef.current(lastProgress.current);
       },
     );
     return () => scrub.current?.destroy();
@@ -103,6 +110,7 @@ export default function RoomBrain() {
       if (poster.current) poster.current.style.opacity = `${1 - videoIn}`;
       if (video.current) video.current.style.opacity = `${videoIn}`;
     };
+    applyChromeRef.current = applyChrome;
 
     let locking = false;
     let lastP = 0;
@@ -162,6 +170,7 @@ export default function RoomBrain() {
           }
         }
         lastP = p;
+        lastProgress.current = p;
       },
     });
 
