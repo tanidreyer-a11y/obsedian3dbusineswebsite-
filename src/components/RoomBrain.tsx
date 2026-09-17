@@ -109,6 +109,13 @@ export default function RoomBrain() {
     const fired = new Array(CAPTIONS.length).fill(false);
     const timers: ReturnType<typeof setTimeout>[] = [];
 
+    // iOS Safari can rubber-band past `overflow: hidden` on touch; block the
+    // gesture outright while a lock is active instead of relying on it alone.
+    const blockTouch = (e: TouchEvent) => {
+      if (locking) e.preventDefault();
+    };
+    document.addEventListener("touchmove", blockTouch, { passive: false });
+
     const releaseLock = () => {
       document.documentElement.style.removeProperty("overflow");
       locking = false;
@@ -161,6 +168,7 @@ export default function RoomBrain() {
     return () => {
       trigger.kill();
       timers.forEach(clearTimeout);
+      document.removeEventListener("touchmove", blockTouch);
       document.documentElement.style.removeProperty("overflow");
       gsap.killTweensOf([wordmark.current, poster.current, video.current]);
     };
