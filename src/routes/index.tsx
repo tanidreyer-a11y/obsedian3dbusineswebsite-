@@ -117,6 +117,8 @@ function StaticHero() {
       <div className="room-static-media">
         <img src={brainDust} alt="A satin-grey brain form suspended in a burst of violet dust" />
       </div>
+      <h1>Every brand starts as an idea nobody's seen yet.</h1>
+      <p>OBSIDIAN builds 3D animated websites for businesses that refuse to be forgettable.</p>
     </div>
   );
 }
