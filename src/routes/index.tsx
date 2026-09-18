@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ArrowUpRight } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 import { useTier } from "@/hooks/use-tier";
 import { ensureGsap, prefersReducedMotion } from "@/lib/motion";
@@ -123,47 +123,6 @@ function StaticHero() {
   );
 }
 
-/**
- * TEMPORARY — remove once the mobile issue is closed out. Reports what this
- * specific device actually decided, on screen, so it can be read off a real
- * phone without devtools instead of inferred from browser emulation.
- */
-const BUILD_TAG = "ios-fix";
-
-function DeviceReadout({ tier }: { tier: string }) {
-  const [info, setInfo] = useState("…");
-
-  useEffect(() => {
-    const read = () => {
-      const v = document.querySelector<HTMLVideoElement>(".brain-video");
-      let webgl2 = false;
-      try {
-        webgl2 = Boolean(document.createElement("canvas").getContext("webgl2"));
-      } catch {
-        webgl2 = false;
-      }
-      setInfo(
-        [
-          `build ${BUILD_TAG}`,
-          `tier ${tier}`,
-          `reduced-motion ${window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "ON" : "off"}`,
-          `webgl2 ${webgl2 ? "yes" : "no"}`,
-          `w${window.innerWidth}`,
-          v ? `video rs${v.readyState} t${v.currentTime.toFixed(1)} ${v.src.startsWith("blob:") ? "blob" : "native"}` : "video none",
-          v?.error ? `ERR ${v.error.code}` : "",
-        ]
-          .filter(Boolean)
-          .join(" · "),
-      );
-    };
-    read();
-    const id = setInterval(read, 500);
-    return () => clearInterval(id);
-  }, [tier]);
-
-  return <div className="device-readout">{info}</div>;
-}
-
 function ObsidianPage() {
   const tier = useTier();
   const cinematic = tier === "full" || tier === "flat";
@@ -175,7 +134,6 @@ function ObsidianPage() {
 
   return (
     <main className="wisp" data-tier={tier}>
-      <DeviceReadout tier={tier} />
       <header className="bar">
         <a href="#top" className="mark" aria-label="OBSIDIAN, home">
           OBSIDIAN
