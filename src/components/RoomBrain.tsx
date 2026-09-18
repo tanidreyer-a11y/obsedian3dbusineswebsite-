@@ -124,6 +124,19 @@ export default function RoomBrain() {
     };
     document.addEventListener("touchmove", blockTouch, { passive: false });
 
+    // A second, independent net: a flick released right as the lock engages
+    // keeps decelerating on iOS via its own momentum, which isn't a touchmove
+    // at all, so blocking the gesture above doesn't catch it. Snap back to the
+    // position the lock started at on every scroll event while locked —
+    // instant, not the page's own smooth-scroll default.
+    let lockedScrollY = 0;
+    const snapScroll = () => {
+      if (locking && window.scrollY !== lockedScrollY) {
+        window.scrollTo({ top: lockedScrollY, left: 0, behavior: "instant" });
+      }
+    };
+    window.addEventListener("scroll", snapScroll, { passive: true });
+
     const releaseLock = () => {
       document.documentElement.style.removeProperty("overflow");
       locking = false;
@@ -132,6 +145,7 @@ export default function RoomBrain() {
     const runLock = (i: number) => {
       const cap = CAPTIONS[i]!;
       locking = true;
+      lockedScrollY = window.scrollY;
       scrub.current?.setProgress(cap.time / DURATION);
       document.documentElement.style.overflow = "hidden";
 
@@ -178,6 +192,7 @@ export default function RoomBrain() {
       trigger.kill();
       timers.forEach(clearTimeout);
       document.removeEventListener("touchmove", blockTouch);
+      window.removeEventListener("scroll", snapScroll);
       document.documentElement.style.removeProperty("overflow");
       gsap.killTweensOf([wordmark.current, poster.current, video.current]);
     };
