@@ -105,6 +105,9 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .hero-static h1 { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: clamp(2rem, 5.5vw, 3.2rem); line-height: 1.08; letter-spacing: -0.01em; color: var(--paper); max-width: 18ch; text-wrap: balance; }
 .hero-static p { margin: 0; color: var(--dim); font-size: clamp(0.92rem, 2.4vw, 1.02rem); line-height: 1.5; max-width: 32ch; }
 
+/* TEMPORARY diagnostic readout — remove with the DeviceReadout component. */
+.device-readout { position: fixed; z-index: 999; left: 0; right: 0; bottom: 0; padding: 0.5rem 0.75rem; background: #a855f7; color: #0a0a0e; font-family: var(--font-mono); font-size: 0.6rem; line-height: 1.4; letter-spacing: 0.04em; text-align: center; pointer-events: none; }
+
 /* --- Below the journey: what the studio actually does, then the close --- */
 .below { position: relative; z-index: 3; background: var(--ink); }
 
