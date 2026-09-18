@@ -128,7 +128,7 @@ function StaticHero() {
  * specific device actually decided, on screen, so it can be read off a real
  * phone without devtools instead of inferred from browser emulation.
  */
-const BUILD_TAG = "diag-1";
+const BUILD_TAG = "ios-fix";
 
 function DeviceReadout({ tier }: { tier: string }) {
   const [info, setInfo] = useState("…");

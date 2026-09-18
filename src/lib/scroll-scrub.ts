@@ -22,6 +22,19 @@ const THROUGHPUT_SAMPLE_MS = 600;
 const SLOW_PROJECTED_TOTAL_S = 8;
 const WATCHDOG_MS = 20000;
 
+/**
+ * WebKit (all iOS browsers, plus desktop Safari) can't reliably decode video
+ * from a blob: URL — its media loader wants a real HTTP(S) source it can issue
+ * Range requests against. Handing it an object URL fails quietly: no error
+ * event, no loadeddata, so a readiness gate waiting on that event waits
+ * forever and the poster never gives way to the video. Chrome plays blob video
+ * fine, which is exactly why this survives every non-Safari test.
+ */
+function prefersNativeMedia() {
+  if (typeof navigator === "undefined") return false;
+  return (navigator.vendor || "").includes("Apple");
+}
+
 export function createScrollScrub(
   video: HTMLVideoElement,
   src: string,
@@ -92,6 +105,14 @@ export function createScrollScrub(
       "loadedmetadata",
       () => {
         duration = video.duration || 0;
+        // iOS won't decode or paint a frame for a video that has never been
+        // told to play, so a pure seek leaves the element blank. It's muted and
+        // inline, so this is allowed without a user gesture; pausing right back
+        // leaves a decoded frame on screen and hands control to the scrub.
+        void video
+          .play()
+          .then(() => video.pause())
+          .catch(() => {});
         requestSeek(target * duration);
       },
       { once: true },
@@ -115,6 +136,23 @@ export function createScrollScrub(
     video.src = src;
     wireNativeListeners();
   };
+
+  // Safari/iOS never attempts the Blob path at all — it can't play the result.
+  if (prefersNativeMedia()) {
+    fallBackToNative();
+    return {
+      setProgress(p: number) {
+        target = p < 0 ? 0 : p > 1 ? 1 : p;
+        kick();
+      },
+      destroy() {
+        destroyed = true;
+        cancelAnimationFrame(rafId);
+        video.removeEventListener("seeked", onSeeked);
+        video.removeEventListener("error", onError);
+      },
+    };
+  }
 
   watchdog = window.setTimeout(fallBackToNative, WATCHDOG_MS);
 
